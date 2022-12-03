@@ -60,7 +60,6 @@ impl Aoc {
                 if let None = result {
                     result = Some(r);
                 }
-                println!("{d:?}");
                 total += d;
 
                 // TODO ensure that results equal
