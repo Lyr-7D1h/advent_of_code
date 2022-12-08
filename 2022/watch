@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# ./watch {day} {part} {data folder} [other arguments]
+# eg. ./watch day1 one input
+#
+
+set -e
+
+cargo watch -x "run --bin="$1" -- $2 $3/$1.txt ${@:4}"
