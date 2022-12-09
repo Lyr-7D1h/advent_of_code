@@ -124,15 +124,11 @@ fn part2(input: Input) -> usize {
     let row_length = map.len();
     for y in 1..row_length - 1 {
         for x in 1..column_length - 1 {
-            // println!("left: {}", distance_left(&map, x, y));
-            // println!("up: {}", distance_up(&map, x, y));
-            // println!("rigth: {}", distance_right(&map, x, y));
             let score = distance_left(&map, x, y)
                 * distance_up(&map, x, y)
                 * distance_down(&map, x, y)
                 * distance_right(&map, x, y);
 
-            // println!("{} score {score}", map[y][x]);
             if score > max {
                 max = score
             }
