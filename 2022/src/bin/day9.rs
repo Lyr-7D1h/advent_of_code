@@ -1,8 +1,5 @@
 use advent_of_code_2022::{Aoc, Input};
-use std::{
-    collections::{HashSet, VecDeque},
-    io::BufRead,
-};
+use std::{collections::HashSet, io::BufRead};
 
 enum Instruction {
     Right,
@@ -23,29 +20,27 @@ impl From<&str> for Instruction {
     }
 }
 
-#[derive(Debug, Hash, Eq, PartialEq)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
 struct Position {
     x: i32,
     y: i32,
 }
 
-fn attached(a: &Position, b: &Position) -> bool {
-    let distance = (a.x - b.x).pow(2) + (a.y - b.y).pow(2);
-    if distance > 1 {
+fn adjacent(a: &Position, b: &Position) -> bool {
+    if (a.x - b.x).abs() > 1 || (a.y - b.y).abs() > 1 {
         return false;
     }
     return true;
 }
 
+// 6ms
 fn part1(input: Input) -> usize {
-    let mut set = HashSet::new();
+    let mut set = HashSet::from([Position { x: 0, y: 0 }]);
 
     let mut tail = Position { x: 0, y: 0 };
     let mut head = Position { x: 0, y: 0 };
 
     for line in input.lines() {
-        println!("{set:?}");
-
         let line = line.unwrap();
         let mut split = line.split(" ");
         let instruction = Instruction::from(split.next().unwrap());
@@ -55,30 +50,86 @@ fn part1(input: Input) -> usize {
             match instruction {
                 Instruction::Right => {
                     head.x += 1;
-                    if !attached(&tail, &head) {
+                    if !adjacent(&tail, &head) {
                         tail.x += 1;
                         tail.y = head.y;
                     }
                 }
                 Instruction::Left => {
                     head.x -= 1;
+                    if !adjacent(&tail, &head) {
+                        tail.x -= 1;
+                        tail.y = head.y;
+                    }
                 }
                 Instruction::Up => {
-                    head.y -= 1;
+                    head.y += 1;
+                    if !adjacent(&tail, &head) {
+                        tail.x = head.x;
+                        tail.y += 1;
+                    }
                 }
                 Instruction::Down => {
-                    head.y += 1;
+                    head.y -= 1;
+                    if !adjacent(&tail, &head) {
+                        tail.x = head.x;
+                        tail.y -= 1;
+                    }
                 }
             }
-            set.insert(&tail);
+            set.insert(tail.clone());
         }
     }
 
     return set.len();
 }
 
-fn part2(input: Input) -> u32 {
-    todo!()
+/// Helper function to print the rope
+fn print_rope(rope: &Vec<Position>) {
+    for knot in rope.iter() {
+        print!("({}, {})", knot.x, knot.y);
+    }
+    print!("\n");
+}
+
+// 17ms
+fn part2(input: Input) -> usize {
+    let mut set = HashSet::from([Position { x: 0, y: 0 }]);
+
+    let mut rope = vec![Position { x: 0, y: 0 }; 10];
+
+    for line in input.lines() {
+        let line = line.unwrap();
+        let mut split = line.split(" ");
+        let instruction = Instruction::from(split.next().unwrap());
+        let times = split.next().unwrap().parse::<u32>().unwrap();
+
+        for _ in 0..times {
+            match instruction {
+                Instruction::Right => rope[0].x += 1,
+                Instruction::Left => rope[0].x -= 1,
+                Instruction::Up => rope[0].y += 1,
+                Instruction::Down => rope[0].y -= 1,
+            }
+
+            for i in 1..rope.len() {
+                let x_diff = rope[i - 1].x - rope[i].x;
+                let y_diff = rope[i - 1].y - rope[i].y;
+
+                if x_diff == 0 && y_diff.abs() > 1 {
+                    rope[i].y += y_diff.signum();
+                } else if y_diff == 0 && x_diff.abs() > 1 {
+                    rope[i].x += x_diff.signum();
+                } else if x_diff.abs() > 1 || y_diff.abs() > 1 {
+                    rope[i].x += x_diff.signum();
+                    rope[i].y += y_diff.signum();
+                }
+            }
+            set.insert(rope[9].clone());
+        }
+    }
+
+    return set.len();
 }
 
 fn main() {
