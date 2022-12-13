@@ -159,12 +159,14 @@ fn part2(input: Input) -> u64 {
         .map(|lines| Monkey::from(lines))
         .collect();
 
-    let modulo: u64 = monkeys.iter().map(|m| m.division_test.divisor).product();
+    // Least Common Multiple (https://en.wikipedia.org/wiki/Least_common_multiple) of all divisors
+    // used to test where to put the new number
+    let lcm: u64 = monkeys.iter().map(|m| m.division_test.divisor).product();
 
     for _ in 0..10000 {
         for i in 0..monkeys.len() {
             while let Some(mut item) = monkeys[i].items.pop() {
-                item = (monkeys[i].operation)(item) % modulo;
+                item = (monkeys[i].operation)(item) % lcm;
 
                 let DivisionTest {
                     divisor,
