@@ -122,18 +122,12 @@ impl From<Input> for Map {
             .collect();
 
         // TODO make more efficient
-        let x_min = lines.iter().fold(usize::MAX, |min, l| {
-            min.min(l.iter().fold(usize::MAX, |min, c| c.0.min(min)))
-        });
-        let x_max = lines
+        let x_min = lines
             .iter()
-            .fold(0, |max, l| max.max(l.iter().fold(0, |max, c| c.0.max(max))));
-        // let y_min = lines.iter().fold(usize::MAX, |min, l| {
-        //     min.min(l.iter().fold(usize::MAX, |min, c| c.1.min(min)))
-        // });
-        let y_max = lines
-            .iter()
-            .fold(0, |max, l| max.max(l.iter().fold(0, |max, c| c.1.max(max))));
+            .flatten()
+            .fold(usize::MAX, |min, c| min.min(c.0));
+        let x_max = lines.iter().flatten().fold(0, |max, c| max.max(c.0));
+        let y_max = lines.iter().flatten().fold(0, |max, c| max.max(c.1));
 
         // give extra space for dropped sand
         let mut map = vec![VecDeque::from(vec![false; x_max - x_min + 1]); y_max + 1];
@@ -171,7 +165,7 @@ impl From<Input> for Map {
     }
 }
 
-// 8ms
+// 7ms
 fn part1(input: Input) -> u32 {
     let mut map = Map::from(input);
 
@@ -182,6 +176,7 @@ fn part1(input: Input) -> u32 {
     return i;
 }
 
+// 210ms
 fn part2(input: Input) -> u32 {
     let mut map = Map::from(input);
 

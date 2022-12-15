@@ -83,7 +83,7 @@ fn part1(input: Input) -> usize {
     return total;
 }
 
-// 3.4ms 
+// 3.4ms
 fn part2(input: Input) -> usize {
     let mut packets = vec![];
     let lines = &mut input.lines();
