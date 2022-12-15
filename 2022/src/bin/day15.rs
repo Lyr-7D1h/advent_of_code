@@ -53,7 +53,7 @@ impl RangeSet {
         return len;
     }
 
-    /// Insert a new range into the set or update an existing range if overlapping
+    /// Insert a new range into the set or update an existing range if overlapping or bordering
     fn insert(&mut self, range: Range) {
         for i in 0..self.ranges.len() {
             if self.ranges[i].contains(&range) {
@@ -81,22 +81,16 @@ struct Map {
 
 impl Map {
     fn sensor_ranges_on_row(&self, row: isize) -> RangeSet {
-        // get all relevant sensors that can reach that row
-        let sensors_in_range: Vec<&Sensor> = self
-            .sensors
-            .iter()
-            .filter(|s| {
-                s.position.1 - s.distance_beacon as isize <= row
-                    && row <= s.position.1 + s.distance_beacon as isize
-            })
-            .collect();
-
         let mut set = RangeSet::new();
 
-        for sensor in sensors_in_range.iter() {
+        for sensor in self.sensors.iter() {
             // distance = range distance - relative distance
-            let d =
-                isize::try_from(sensor.distance_beacon - sensor.position.1.abs_diff(row)).unwrap();
+            let d = sensor.distance_beacon as isize - sensor.position.1.abs_diff(row) as isize;
+
+            if d < 0 {
+                continue;
+            }
+
             set.insert(Range {
                 start: sensor.position.0 - d,
                 end: sensor.position.0 + d,
@@ -109,25 +103,23 @@ impl Map {
     // find the only position within a range that isn't covered
     fn find_distress_position(&self, lowerbound: isize, upperbound: isize) -> (isize, isize) {
         for row in lowerbound..upperbound {
-            let sensors_in_range: Vec<&Sensor> = self
-                .sensors
-                .iter()
-                .filter(|s| {
-                    s.position.1 - s.distance_beacon as isize <= row
-                        && row <= s.position.1 + s.distance_beacon as isize
-                })
-                .collect();
-
             let mut set = RangeSet::new();
 
-            for sensor in sensors_in_range.iter() {
+            for sensor in self.sensors.iter() {
                 // distance = range distance - relative distance
-                let d = isize::try_from(sensor.distance_beacon - sensor.position.1.abs_diff(row))
-                    .unwrap();
+                let d = sensor.distance_beacon as isize - sensor.position.1.abs_diff(row) as isize;
+
+                // skip if sensor can't reach the row
+                if d < 0 {
+                    continue;
+                }
+
                 let mut range = Range {
                     start: sensor.position.0 - d,
                     end: sensor.position.0 + d,
                 };
+
+                // ensure range is within boundry
                 if range.start < lowerbound {
                     range.start = lowerbound
                 }
@@ -206,7 +198,7 @@ fn part1(input: Input) -> usize {
     return Map::from(input).sensor_ranges_on_row(2000000).len();
 }
 
-// 7s
+// 4.9s
 fn part2(input: Input) -> isize {
     let (x, y) = Map::from(input).find_distress_position(0, 4000000);
     return x * 4000000 + y;
