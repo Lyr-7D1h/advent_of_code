@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#
+# ./run {day} {part} {data folder} [other arguments]
+# eg. ./run day1 one input
+#
+
+set -e
+
+cargo build --bin="$1" --release
+./target/release/"$1" $2 $3/$1.txt -p
