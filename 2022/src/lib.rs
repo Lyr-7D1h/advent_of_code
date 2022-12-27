@@ -12,7 +12,7 @@ use clap::Parser;
 
 pub type Input = BufReader<File>;
 
-const PERFORMANCE_ACCURACY: u32 = 500;
+const PERFORMANCE_ACCURACY: u32 = 100;
 
 pub struct Aoc {
     args: Args,
