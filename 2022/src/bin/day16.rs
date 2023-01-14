@@ -240,7 +240,7 @@ impl From<Input> for Cave {
     }
 }
 
-/// 83ms 
+/// 83ms
 fn part1(input: Input) -> usize {
     return Cave::from(input).branch_and_bound_dfs([30, 0]);
 }
