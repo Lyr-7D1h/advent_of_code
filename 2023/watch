@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# ./watch {day} {part} {data folder} [other arguments]
+# eg. ./watch day1 one input
+#
+
+set -eEuo pipefail
+
+DAY=$1
+PART=$2
+INPUT=$3
+
+if [ ! -f $INPUT ]; then
+    INPUT=$3/$1.txt
+fi
+
+cargo watch -x "run --bin="$DAY" -- $PART $INPUT ${@:4}"
