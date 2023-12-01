@@ -1,12 +1,11 @@
-use advent_of_code_2022::{Aoc, Input};
-use std::io::BufRead;
+use advent_of_code_2022::Aoc;
 
-// 103us
-fn part1(input: Input) -> u32 {
+// 80ns
+fn part1(input: String) -> u32 {
     let mut sum = 0;
     let mut pair: (Option<char>, Option<char>) = (None, None);
     for line in input.lines() {
-        for c in line.unwrap().chars() {
+        for c in line.chars() {
             if c.is_ascii_digit() {
                 if pair.0.is_none() {
                     pair = (Some(c), Some(c))
@@ -23,8 +22,8 @@ fn part1(input: Input) -> u32 {
     return sum;
 }
 
-// 359.898µs
-fn part2(input: Input) -> u32 {
+// 340µs
+fn part2(input: String) -> u32 {
     let numbers: [Vec<char>; 9] = [
         vec!['n', 'e'],
         vec!['w', 'o'],
@@ -41,7 +40,7 @@ fn part2(input: Input) -> u32 {
     let mut pair: (Option<char>, Option<char>) = (None, None);
     let mut comparisons: Vec<(usize, usize)> = vec![];
     for line in input.lines() {
-        for c in line.unwrap().chars() {
+        for c in line.chars() {
             if c.is_ascii_digit() {
                 // set pair
                 if pair.0.is_none() {
@@ -70,6 +69,7 @@ fn part2(input: Input) -> u32 {
                         }
                         return None;
                     }
+
                     Some((number, index))
                 })
                 .collect();

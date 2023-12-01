@@ -1,8 +1,7 @@
 use std::{
     collections::HashMap,
     fmt::Display,
-    fs::File,
-    io::BufReader,
+    fs::read_to_string,
     time::{Duration, Instant},
 };
 
@@ -26,11 +25,9 @@ pub struct Args {
     pub performance_accuracy: u32,
 }
 
-pub type Input = BufReader<File>;
-
 pub struct Aoc {
     args: Args,
-    parts: HashMap<String, Box<dyn Fn(Input) -> (Box<dyn Display>, Duration)>>,
+    parts: HashMap<String, Box<dyn Fn(String) -> (Box<dyn Display>, Duration)>>,
 }
 
 impl Aoc {
@@ -43,7 +40,7 @@ impl Aoc {
         }
     }
 
-    pub fn part<T: Display + 'static + Eq>(&mut self, key: &str, part: fn(Input) -> T) {
+    pub fn part<T: Display + 'static + Eq>(&mut self, key: &str, part: fn(String) -> T) {
         self.parts.insert(
             key.to_string(),
             Box::new(move |input| {
@@ -61,25 +58,19 @@ impl Aoc {
             .get(&self.args.part)
             .expect(&format!("Part {} not found", self.args.part));
 
+        let input = read_to_string(&self.args.input).expect("input file not found");
+
         // if performance enabled run multiple times and measure average
-        // TODO make sure rust compiler doesn't do any optimizations
         if self.args.performance {
             let mut total = Duration::ZERO;
             let mut result = None;
 
             for _ in 0..self.args.performance_accuracy {
-                let (r, d) = part(BufReader::new(
-                    File::open(&self.args.input).expect("input file not found"),
-                ));
+                let (r, d) = part(input.clone());
                 if let None = result {
                     result = Some(r);
                 }
                 total += d;
-
-                // TODO ensure that results equal
-                // if r != result {
-                //     panic!("part returned different result!")
-                // }
             }
 
             println!(
@@ -92,10 +83,7 @@ impl Aoc {
             return;
         }
 
-        let file = File::open(&self.args.input).expect("input file not found");
-        let input = BufReader::new(file);
-
-        let (result, duration) = part(input);
+        let (result, duration) = part(input.clone());
 
         println!(
             "{} finished\nResult: {}\nDuration: {:?}",
