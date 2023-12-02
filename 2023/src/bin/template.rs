@@ -1,11 +1,10 @@
-use advent_of_code_2022::{Aoc, Input};
-use std::io::BufRead;
+use advent_of_code_2023::Aoc;
 
-fn part1(input: Input) -> u32 {
+fn part1(input: String) -> u32 {
     todo!()
 }
 
-fn part2(input: Input) -> u32 {
+fn part2(input: String) -> u32 {
     todo!()
 }
 

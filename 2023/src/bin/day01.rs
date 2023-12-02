@@ -1,4 +1,4 @@
-use advent_of_code_2022::Aoc;
+use advent_of_code_2023::Aoc;
 
 // 80ns
 fn part1(input: String) -> u32 {
