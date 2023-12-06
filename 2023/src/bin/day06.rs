@@ -1,6 +1,6 @@
 use advent_of_code_2023::Aoc;
 
-// 549ns
+// 400ns
 fn part1(input: String) -> f64 {
     let mut lines = input.lines();
     let times = lines.next().unwrap();
@@ -35,27 +35,15 @@ fn part1(input: String) -> f64 {
         // where t is time pressed on the button to accelerate
 
         let d = ((ttotal.powi(2) - 4.0 * distance) as f64).sqrt();
-        let mut x_min = (ttotal - d) / 2.0;
-        // if boundry is on an integer it has to be bigger
-        if x_min.fract() == 0.0 {
-            x_min = x_min + 1.0;
-        } else {
-            x_min = x_min.ceil();
-        }
-        let mut x_max = (ttotal + d) / 2.0;
-        if x_max.fract() == 0.0 {
-            x_max = x_max - 1.0;
-        } else {
-            x_max = x_max.floor();
-        }
-
+        let x_min = (((ttotal - d) / 2.0) + 1.).floor();
+        let x_max = (((ttotal + d) / 2.0) - 1.).ceil();
         sum *= x_max - x_min + 1.0;
     }
 
     return sum;
 }
 
-// 1.004µs
+// 380ns
 fn part2(input: String) -> f64 {
     let mut lines = input.lines();
 
@@ -77,20 +65,8 @@ fn part2(input: String) -> f64 {
     // where t is time pressed on the button to accelerate
 
     let d = ((time.powi(2) - 4.0 * distance) as f64).sqrt();
-    let mut x_min = (time - d) / 2.0;
-    // if boundry is on an integer it has to be bigger
-    if x_min.fract() == 0.0 {
-        x_min = x_min + 1.0;
-    } else {
-        x_min = x_min.ceil();
-    }
-    let mut x_max = (time + d) / 2.0;
-    if x_max.fract() == 0.0 {
-        x_max = x_max - 1.0;
-    } else {
-        x_max = x_max.floor();
-    }
-
+    let x_min = (((time - d) / 2.0) + 1.).floor();
+    let x_max = (((time + d) / 2.0) - 1.).ceil();
     return x_max - x_min + 1.0;
 }
 
