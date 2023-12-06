@@ -2,6 +2,7 @@ use std::ops::RangeBounds;
 
 use advent_of_code_2023::Aoc;
 
+/// 21.605µs
 fn part1(input: String) -> u64 {
     let mut lines = input.lines();
 
@@ -53,6 +54,8 @@ fn part1(input: String) -> u64 {
     return min;
 }
 
+/// 130s
+/// brute force solution
 fn part2_naive(input: String) -> u64 {
     let mut lines = input.lines();
 
@@ -107,6 +110,8 @@ fn part2_naive(input: String) -> u64 {
     return min;
 }
 
+/// 31.841µs
+/// mapping boundries and splitting ranges
 fn part2(input: String) -> u64 {
     let mut lines = input.lines();
 
@@ -131,65 +136,65 @@ fn part2(input: String) -> u64 {
         let destination_start: u64 = parts.next().unwrap().parse().unwrap();
         let source_start: u64 = parts.next().unwrap().parse().unwrap();
         let range_length: u64 = parts.next().unwrap().parse().unwrap();
-        map.push((source_start..source_start + range_length, destination_start));
+        map.push((
+            source_start,
+            source_start + range_length - 1,
+            destination_start,
+        ));
     }
     // add last map
     maps.push(map);
 
-    let mut min = u64::MAX;
-    for c in seeds.chunks(2).into_iter() {
-        let sranges = vec![(c[0], c[0] + c[1])];
+    let mut ranges: Vec<(u64, u64)> = seeds.chunks(2).map(|c| (c[0], c[0] + c[1] - 1)).collect();
+    for map in maps.into_iter() {
+        let mut queue: Vec<usize> = (0..ranges.len()).collect();
 
-        // println!("{c:?}");
-        for i in 0..sranges.len() {
-            let (smin, smax) = &mut sranges[i];
-
-            'map: for map in maps.iter() {
-                for (source_range, dest_start) in map.iter() {
-                    if source_range.contains(&smin) {
-                        let start = match source_range.start_bound() {
-                            std::ops::Bound::Included(start) => start,
-                            _ => panic!("no start bound"),
-                        };
-
-                        if source_range.contains(&smax) {
-                            *smin -= start + dest_start;
-                            *smax -= start + dest_start;
-                            continue 'map;
-                        }
-
-                        // smax is bigger than range
-                        let end = match source_range.start_bound() {
-                            std::ops::Bound::Included(start) => *start,
-                            _ => panic!("no start bound"),
-                        };
-                        sranges.push((end, *smax));
-                        *smax = end;
-                        continue 'map;
-
-                        // range found go to next map
+        'range: while let Some(i) = queue.pop() {
+            for (start, end, dest_start) in map.iter().cloned() {
+                let (smin, smax) = ranges[i];
+                if start <= smin && smin <= end {
+                    // change whole range by offset
+                    if smax <= end {
+                        ranges[i].0 = smin - start + dest_start;
+                        ranges[i].1 = smax - start + dest_start;
+                        // assert!(ranges[i].0 < ranges[i].1);
+                        continue 'range;
                     }
 
-                    if source_range.contains(&smax) {
-                        let start = match source_range.start_bound() {
-                            std::ops::Bound::Included(start) => *start,
-                            _ => panic!("no start bound"),
-                        };
-                        *smax = start;
-                    }
+                    // smax is bigger than range so split into two ranges
+                    ranges[i].0 = smin - start + dest_start;
+                    ranges[i].1 = end - start + dest_start;
+                    // assert!(ranges[i].0 < ranges[i].1);
+
+                    // add new range
+                    ranges.push((end + 1, smax));
+                    queue.push(ranges.len() - 1);
+                    // assert!(ranges[ranges.len() - 1].0 < ranges[ranges.len() - 1].1);
+
+                    continue 'range;
+                }
+
+                if start <= smax && smax <= end {
+                    ranges[i].0 = dest_start;
+                    ranges[i].1 = smax - start + dest_start;
+                    // assert!(ranges[i].0 < ranges[i].1);
+
+                    ranges.push((smin, start - 1));
+                    queue.push(ranges.len() - 1);
+                    // assert!(ranges[ranges.len() - 1].0 < ranges[ranges.len() - 1].1);
+                    continue 'range;
                 }
             }
         }
-
-        let min_range = sranges
-            .into_iter()
-            .reduce(|a, b| if a.0 < b.0 { a } else { b })
-            .unwrap()
-            .0;
-        min = min.min(min_range);
     }
 
-    return min;
+    let min_range = ranges
+        .into_iter()
+        .reduce(|a, b| if a.0 < b.0 { a } else { b })
+        .unwrap()
+        .0;
+
+    return min_range;
 }
 
 fn main() {
