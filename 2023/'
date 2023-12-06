@@ -1,84 +1,43 @@
 use advent_of_code_2023::Aoc;
 
-/// 140ns
 fn part1(input: String) -> u32 {
-    let map: Vec<Vec<char>> = input.split("\n").map(|s| s.chars().collect()).collect();
-
-    let mut sum = 0;
-
-    for (y, line) in map.iter().enumerate() {
-        let mut digit: Option<String> = None;
-
-        'line: for (x, c) in line.iter().enumerate() {
-            if c.is_ascii_digit() {
-                if let Some(digit) = &mut digit {
-                    digit.push(*c);
-                } else {
-                    digit = Some(c.to_string());
-                }
-                continue;
+    let mut lines = input.lines();
+    let times = lines.next().unwrap();
+    let times: Vec<u32> = times[11..times.len()]
+        .split(" ")
+        .filter_map(|t| {
+            if t.len() == 0 {
+                None
+            } else {
+                Some(t.parse().unwrap())
             }
-
-            // check if digit has surrounding symbol
-            if let Some(digit_string) = digit.clone() {
-                for y in y.saturating_sub(1)..map.len().min(y + 2) {
-                    for x in x.saturating_sub(digit_string.len() + 1)..line.len().min(x + 1) {
-                        let c = map[y][x];
-                        // is symbol?
-                        if !c.is_ascii_digit() && c != '.' {
-                            sum += digit_string.parse::<u32>().unwrap();
-                            digit = None;
-                            continue 'line;
-                        }
-                    }
-                }
+        })
+        .collect();
+    let distances = lines.next().unwrap();
+    let distances: Vec<u32> = distances[11..distances.len()]
+        .split(" ")
+        .filter_map(|t| {
+            if t.len() == 0 {
+                None
+            } else {
+                Some(t.parse().unwrap())
             }
-            digit = None;
-        }
+        })
+        .collect();
 
-        // check if digit has surrounding symbol
-        if let Some(digit_string) = digit.clone() {
-            let x = line.len() - 1;
-            for y in y.saturating_sub(1)..map.len().min(y + 2) {
-                for x in x.saturating_sub(digit_string.len() + 1)..line.len().min(x + 1) {
-                    let c = map[y][x];
-                    // is symbol?
-                    if !c.is_ascii_digit() && c != '.' {
-                        // println!("{:?}", digit_string.parse::<u32>().unwrap());
-                        sum += digit_string.parse::<u32>().unwrap();
-                    }
-                }
-            }
-        }
+    for i in 0..times.len() {
+        let ttotal = times[i];
+        let distance = distances[i];
+
+        // tpressed * (ttotal-tpressed) =distance
+        // 0 < tpressed < ttotal
     }
 
-    return sum;
+    todo!()
 }
 
 fn part2(input: String) -> u32 {
-    let mut sum = 0;
-    let map: Vec<Vec<char>> = input.split("\n").map(|s| s.chars().collect()).collect();
-
-    let y_max = map.len();
-    let x_max = map[0].len();
-    for y in 0..y_max {
-        for x in 0..x_max {
-            println!("POS {y} {x}");
-            if map[y][x] == '*' {
-                let mut positions = vec![];
-                for y in y.saturating_sub(1)..y.min(y_max) {
-                    for x in x.saturating_sub(1)..x.min(x_max) {
-                        println!("{y} {x}");
-                        if map[y][x].is_ascii_digit() {
-                            positions.push((x, y));
-                        }
-                    }
-                }
-                println!("{positions:?}");
-            }
-        }
-    }
-    return sum;
+    todo!()
 }
 
 fn main() {

@@ -153,8 +153,8 @@ fn part2(input: String) -> u64 {
                         };
 
                         if source_range.contains(&smax) {
-                            *smin -=  start + dest_start;
-                            *smax -=  start + dest_start;
+                            *smin -= start + dest_start;
+                            *smax -= start + dest_start;
                             continue 'map;
                         }
 

@@ -40,7 +40,7 @@ impl Aoc {
         }
     }
 
-    pub fn part<T: Display + 'static + Eq>(&mut self, key: &str, part: fn(String) -> T) {
+    pub fn part<T: Display + 'static>(&mut self, key: &str, part: fn(String) -> T) {
         self.parts.insert(
             key.to_string(),
             Box::new(move |input| {
