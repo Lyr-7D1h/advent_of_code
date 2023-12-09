@@ -68,6 +68,17 @@ fn part1(input: String) -> usize {
     return steps;
 }
 
+fn gcd(a: usize, b: usize) -> usize {
+    if b == 0 {
+        return a;
+    }
+    return gcd(b, a % b);
+}
+fn lcm(a: usize, b: usize) -> usize {
+    (a / gcd(a, b)) * b
+}
+
+/// 2.339661ms
 fn part2(input: String) -> usize {
     let mut lines = input.lines();
     let instructions: Vec<char> = lines.next().unwrap().chars().collect();
@@ -84,6 +95,7 @@ fn part2(input: String) -> usize {
         })
         .collect();
 
+        // build minimal map
     let mut map = vec![];
     let mut start = vec![];
     for i in 0..nodes.len() {
@@ -115,27 +127,30 @@ fn part2(input: String) -> usize {
         map.push((dir.0.unwrap(), dir.1.unwrap(), is_z))
     }
 
-    let mut steps = 0;
-    loop {
-        let ins = instructions[steps % instructions.len()];
-        let mut all_z = true;
-        for i in start.iter_mut() {
-            if !map[*i].2 {
-                all_z = false;
-            }
-            match ins {
-                'L' => *i = map[*i].0,
-                'R' => *i = map[*i].1,
-                _ => panic!("invalid ins"),
-            }
-        }
-        if all_z {
-            break;
-        }
-        steps += 1;
-    }
+    return start
+        .into_iter()
+        .map(|mut i| {
+            let mut steps = 0;
+            loop {
+                let (l, r, is_z) = map[i];
 
-    return steps;
+                if is_z {
+                    break;
+                }
+
+                let ins = instructions[steps % instructions.len()];
+                match ins {
+                    'L' => i = l,
+                    'R' => i = r,
+                    _ => panic!("invalid ins"),
+                }
+
+                steps += 1;
+            }
+            steps
+        })
+        .reduce(|a, b| lcm(a, b))
+        .unwrap();
 }
 
 fn main() {
