@@ -1,6 +1,6 @@
 use advent_of_code_2023::Aoc;
 
-/// 356.668µs
+/// 332.437µs
 fn part1(input: String) -> i32 {
     input
         .lines()
@@ -31,12 +31,10 @@ fn part1(input: String) -> i32 {
                 diff_i += 1;
             }
 
-            let mut diff = 0;
-            for seq in differences.iter().rev() {
-                diff = seq.last().unwrap() + diff;
-            }
-
-            diff
+            differences
+                .into_iter()
+                .rev()
+                .fold(0, |a, seq| a + seq.last().unwrap())
         })
         .sum()
 }
@@ -72,12 +70,10 @@ fn part2(input: String) -> i32 {
                 diff_i += 1;
             }
 
-            let mut diff = 0;
-            for seq in differences.iter().rev() {
-                diff = seq.first().unwrap() - diff;
-            }
-
-            diff
+            differences
+                .into_iter()
+                .rev()
+                .fold(0, |a, seq|  seq.first().unwrap() - a)
         })
         .sum()
 }
