@@ -159,6 +159,7 @@ fn part1(input: String) -> u32 {
         if a.0 == b.0 && a.1 == b.1 {
             break;
         }
+        // TODO can just count in one direction and split in two
         for i in 0..2 {
             let (direction, (x, y)) = pos[i];
             let tunnel = Tunnel::from_char(map[y][x]).unwrap();
@@ -172,7 +173,8 @@ fn part1(input: String) -> u32 {
     return steps;
 }
 
-// 4.184221ms couldn't be bothered to optimize
+// 4.184221ms 
+// TODO faster and simpiler when https://en.wikipedia.org/wiki/Point_in_polygon implemented
 fn part2(input: String) -> usize {
     let mut map: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
 
