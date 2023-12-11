@@ -172,6 +172,7 @@ fn part1(input: String) -> u32 {
     return steps;
 }
 
+// 4.184221ms couldn't be bothered to optimize
 fn part2(input: String) -> usize {
     let mut map: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
 
