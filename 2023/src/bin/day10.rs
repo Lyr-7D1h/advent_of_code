@@ -173,7 +173,7 @@ fn part1(input: String) -> u32 {
     return steps;
 }
 
-// 4.184221ms 
+// 4.184221ms
 // TODO faster and simpiler when https://en.wikipedia.org/wiki/Point_in_polygon implemented
 fn part2(input: String) -> usize {
     let mut map: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
