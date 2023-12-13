@@ -84,7 +84,11 @@ fn part1(input: String) -> u32 {
         .sum()
 }
 
-fn generate_damaged(data: &[char], counts: &[usize], cache: &mut HashMap<String, usize>) -> usize {
+fn generate_damaged(
+    data: &[char],
+    counts: &[usize],
+    cache: &mut HashMap<(usize, usize), usize>,
+) -> usize {
     let count = counts[0];
     if count > data.len() {
         return 0;
@@ -101,13 +105,9 @@ fn generate_damaged(data: &[char], counts: &[usize], cache: &mut HashMap<String,
 fn count_possibilities(
     data: &[char],
     counts: &[usize],
-    cache: &mut HashMap<String, usize>,
+    cache: &mut HashMap<(usize, usize), usize>,
 ) -> usize {
-    // wrap inner with caching
-    let mut hash = data.iter().collect::<String>();
-    counts
-        .iter()
-        .for_each(|c| hash.push(char::from_u32(*c as u32).unwrap()));
+    let hash = (data.len(), counts.len());
     if let Some(i) = cache.get(&hash) {
         return *i;
     }
@@ -119,7 +119,7 @@ fn count_possibilities(
 fn count_possibilities_inner(
     data: &[char],
     counts: &[usize],
-    cache: &mut HashMap<String, usize>,
+    cache: &mut HashMap<(usize, usize), usize>,
 ) -> usize {
     if counts.len() == 0 {
         if data.into_iter().any(|c| *c == '#') {
@@ -148,7 +148,7 @@ fn count_possibilities_inner(
     }
 }
 
-/// 2.805159ms
+/// 1.4ms
 fn part1_heuristic(input: String) -> usize {
     input
         .lines()
@@ -170,7 +170,7 @@ fn part1_heuristic(input: String) -> usize {
         .sum()
 }
 
-/// 56.940462ms
+/// 16.052016ms
 fn part2(input: String) -> usize {
     input
         .lines()
