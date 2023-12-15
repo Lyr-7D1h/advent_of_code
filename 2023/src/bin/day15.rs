@@ -12,34 +12,31 @@ fn part1(input: String) -> u32 {
         .sum()
 }
 
-/// 228.742µs
+/// optimized to not use copy but string slices
+/// 155.767µs
 fn part2(input: String) -> usize {
-    let mut boxes: Vec<Vec<(String, u32)>> = vec![vec![]; 256];
+    let mut boxes: Vec<Vec<(&str, u32)>> = vec![vec![]; 256];
     for s in input.trim_end().split(",") {
-        let mut chars = s.chars();
-        let mut label = String::new();
-        let mut hash = 0;
-        while let Some(c) = chars.next() {
-            match c {
-                '=' => {
-                    let focal: u32 = chars.next().unwrap().to_digit(10).unwrap();
-                    if let Some((_, f)) = boxes[hash].iter_mut().find(|(l, _)| *l == label) {
-                        *f = focal;
-                    } else {
-                        boxes[hash].push((label, focal))
-                    }
-                    break;
-                }
-                '-' => {
-                    if let Some(i) = boxes[hash].iter().position(|(l, _)| *l == label) {
-                        boxes[hash].remove(i);
-                    }
-                    break;
-                }
-                _ => {
-                    hash = ((hash + c as usize) * 17) % 256;
-                    label.push(c);
-                }
+        if s.ends_with("-") {
+            let label = s.get(..s.len() - 1).unwrap();
+            let hash = label
+                .chars()
+                .fold(0, |value, c| ((value + c as usize) * 17) % 256);
+
+            if let Some(i) = boxes[hash].iter().position(|(l, _)| *l == label) {
+                boxes[hash].remove(i);
+            }
+        } else {
+            let label = s.get(..s.len() - 2).unwrap();
+            let hash = label
+                .chars()
+                .fold(0, |value, c| ((value + c as usize) * 17) % 256);
+            let focal: u32 = s.get(s.len() - 1..).unwrap().parse().unwrap();
+
+            if let Some((_, f)) = boxes[hash].iter_mut().find(|(l, _)| *l == label) {
+                *f = focal;
+            } else {
+                boxes[hash].push((label, focal));
             }
         }
     }
