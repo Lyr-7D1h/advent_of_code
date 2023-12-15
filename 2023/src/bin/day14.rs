@@ -49,6 +49,7 @@ fn print_map(balls: &Vec<(usize, usize)>, rows: &Vec<Vec<usize>>, col_len: usize
 
 /// 30.941063ms
 fn part2(input: String) -> u32 {
+    // all positions of rollebable balls
     let mut balls: Vec<(usize, usize)> = vec![];
     let mut rows: Vec<Vec<usize>> = vec![];
     let mut columns: Vec<Vec<usize>> = vec![];
@@ -136,6 +137,7 @@ fn part2(input: String) -> u32 {
         }
         i += 1;
     }
+
     // get score from north
     balls
         .into_iter()
