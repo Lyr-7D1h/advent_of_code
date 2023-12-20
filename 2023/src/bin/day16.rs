@@ -89,7 +89,7 @@ fn part1(input: String) -> usize {
     energized.len()
 }
 
-/// 469.384817ms
+/// simple brute force 469.384817ms
 fn part2(input: String) -> usize {
     let map: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
 
