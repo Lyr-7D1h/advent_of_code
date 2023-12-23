@@ -361,6 +361,9 @@ fn part2(input: String) -> i64 {
     let mut left_corners = vec![];
     let mut right_corners = vec![];
 
+    // NOTE: could immediately calculate area by Shoelace formula and use picks theorem to
+    // calculate amount of points
+    // Inner points + Boundry / 2 - 1
     for line in input.lines() {
         let hex = line.split(" ").skip(2).next().unwrap();
         let value = i64::from_str_radix(&hex[2..7], 16).unwrap();
