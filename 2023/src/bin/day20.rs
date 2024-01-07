@@ -6,8 +6,14 @@ use advent_of_code_2023::Aoc;
 enum ModuleKind {
     Broadcaster,
     Receiver,
-    Conjunction { cache: Vec<bool> },
-    FlipFlop { state: bool },
+    /// starts everything low pulse
+    Conjunction {
+        cache: Vec<bool>,
+    },
+    /// Starts off
+    FlipFlop {
+        state: bool,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -32,13 +38,15 @@ impl Module {
             ModuleKind::Broadcaster => Some(pulse),
             ModuleKind::Receiver => None,
             ModuleKind::Conjunction { cache } => {
+                // update cache entry
                 let from_i = self.from.iter().position(|i| *i == from).unwrap();
                 cache[from_i] = pulse;
-                // println!("{cache:?} {:?} {from}", self.from);
 
+                // if all high then send false
                 if cache.iter().all(|p| *p) {
                     Some(false)
                 } else {
+                    // otherwise send true
                     Some(true)
                 }
             }
@@ -108,8 +116,27 @@ impl Graph {
 
     fn find_activation_cycle(&mut self) -> u32 {
         println!("{:?}", self.modules[self.rx].from);
+        let mut queue = VecDeque::new();
+        for i in self.modules[self.rx].from.iter().cloned() {
+            queue.push_front((false, i));
+        }
 
-        return 0;
+        let mut count = 1;
+        while let Some((expected, id)) = queue.pop_front() {
+            let module = &self.modules[id];
+            match &module.kind {
+                ModuleKind::Receiver => panic!(),
+                ModuleKind::Broadcaster => return count,
+                ModuleKind::Conjunction { cache } => {
+                    if expected {
+                        
+                    }
+                }, 
+                ModuleKind::FlipFlop { state } => todo!(),
+            }
+        }
+
+        panic!()
     }
 }
 
