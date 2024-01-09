@@ -2,6 +2,18 @@ use std::collections::{HashMap, VecDeque};
 
 use advent_of_code_2023::Aoc;
 
+fn lcm(a: u64, b: u64) -> u64 {
+    let max = a.max(b);
+    let min = a.min(b);
+    let mut i = max;
+    loop {
+        if i % min == 0 {
+            return i;
+        }
+        i += max;
+    }
+}
+
 #[derive(Debug, Clone)]
 enum ModuleKind {
     Broadcaster,
@@ -114,36 +126,50 @@ impl Graph {
         }
     }
 
-    fn find_activation_cycle(&mut self) -> u32 {
-        println!("{:?}", self.modules[self.rx].from);
+    fn find_activation_cycle(&mut self) -> u64 {
+        assert!(lcm(10, 5) == 10);
+        assert!(lcm(4, 6) == 12);
         let mut queue = VecDeque::new();
-        for i in self.modules[self.rx].from.iter().cloned() {
-            queue.push_front((false, i));
-        }
+        let last_conjunction = self.modules[self.rx].from[0];
+        let mut cycles: Vec<Option<u64>> = self.modules[last_conjunction]
+            .from
+            .clone()
+            .into_iter()
+            .map(|_| None)
+            .collect();
 
-        let mut count = 1;
-        while let Some((expected, id)) = queue.pop_front() {
-            let module = &self.modules[id];
-            match &module.kind {
-                ModuleKind::Receiver => panic!(),
-                ModuleKind::Broadcaster => return count,
-                ModuleKind::Conjunction { cache } => {
-                    if expected {
-                        
+        let mut pressed = 1;
+        loop {
+            queue.push_front((0, self.broadcaster, false));
+            // assume only conjunction points to this
+            while let Some((from, to, pulse)) = queue.pop_front() {
+                // send to destinations
+                if let Some(pulse) = self.modules[to].process(pulse, from) {
+                    for d in self.modules[to].dest.clone() {
+                        if d == last_conjunction {
+                            if pulse == true {
+                                let i = self.modules[d].from.iter().position(|i| *i == to).unwrap();
+                                cycles[i] = Some(pressed);
+                                if cycles.iter().all(|c| c.is_some()) {
+                                    return cycles.into_iter().fold(1, |a, c| lcm(a, c.unwrap()));
+                                }
+                            }
+                            continue;
+                        }
+                        // count when sending to output
+                        queue.push_back((to, d, pulse));
                     }
-                }, 
-                ModuleKind::FlipFlop { state } => todo!(),
+                }
             }
+            pressed += 1;
         }
-
-        panic!()
     }
 }
 
 impl From<String> for Graph {
     fn from(input: String) -> Self {
         let mut broadcaster = 0;
-        let mut named_map: HashMap<&str, (usize, ModuleKind, Vec<&str>)> = input
+        let named_map: HashMap<&str, (usize, ModuleKind, Vec<&str>)> = input
             .lines()
             .into_iter()
             .enumerate()
@@ -209,7 +235,6 @@ impl From<String> for Graph {
         for m in modules.iter_mut() {
             m.init()
         }
-        println!("{modules:?}");
         return Self {
             rx: modules.len() - 1,
             modules,
@@ -224,13 +249,13 @@ impl From<String> for Graph {
 fn part1(input: String) -> u32 {
     let mut graph = Graph::from(input);
     for _ in 0..1000 {
-        // println!("");
         graph.press_button();
     }
     graph.score()
 }
 
-fn part2(input: String) -> u32 {
+/// Average Duration: 1.732614ms
+fn part2(input: String) -> u64 {
     let mut graph = Graph::from(input);
     return graph.find_activation_cycle();
 }
