@@ -127,8 +127,6 @@ impl Graph {
     }
 
     fn find_activation_cycle(&mut self) -> u64 {
-        assert!(lcm(10, 5) == 10);
-        assert!(lcm(4, 6) == 12);
         let mut queue = VecDeque::new();
         let last_conjunction = self.modules[self.rx].from[0];
         let mut cycles: Vec<Option<u64>> = self.modules[last_conjunction]
