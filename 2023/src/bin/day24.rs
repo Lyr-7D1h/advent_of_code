@@ -121,23 +121,29 @@ impl Fraction {
     }
     fn round(self) -> i128 {
         self.numerator.div(self.denominator)
-        // Fraction {
-        //     numerator: ,
-        //     denominator: 1,
-        // }
     }
-    /// returns how much the number will differ if approximated
-    fn accuracy(&self) -> i128 {
-        let a = gcd(self.numerator.abs(), self.denominator.abs());
-        // println!("AAA {a}");
-        // (self.numerator.to_string().len() * self.denominator.to_string().len()) as i128
+    /// returns a higher number based on sensitivity
+    fn sensitivity(&self) -> i128 {
         let a = self.numerator.to_string().len();
         let b = self.denominator.to_string().len();
         (a + b - a.abs_diff(b)) as i128
-        // self.round()
     }
     fn approximate(&self) -> Fraction {
-        let s = 2;
+        // find a divisor that will influence this number the least
+        let s = (2..100)
+            .map(|divisor| {
+                let initial_value = (self.numerator / self.denominator) as f64;
+                let modified_value =
+                    (self.numerator / divisor) as f64 / (self.denominator / divisor) as f64;
+
+                (
+                    divisor,
+                    ((modified_value - initial_value) / initial_value) * 100.0,
+                )
+            })
+            .min_by(|a, b| a.1.total_cmp(&b.1))
+            .unwrap()
+            .0 as i128;
         Fraction::new(self.numerator / s, self.denominator / s)
     }
 }
@@ -200,7 +206,7 @@ impl Sub for Fraction {
                 return Fraction::new(new_numerator.unwrap(), new_denominator.unwrap());
             }
 
-            if s.accuracy() > other.accuracy() {
+            if s.sensitivity() > other.sensitivity() {
                 s = s.approximate();
             } else {
                 other = other.approximate();
@@ -225,7 +231,7 @@ impl Add for Fraction {
                 return Fraction::new(new_numerator.unwrap(), new_denominator.unwrap());
             }
 
-            if s.accuracy() > other.accuracy() {
+            if s.sensitivity() > other.sensitivity() {
                 s = s.approximate();
             } else {
                 other = other.approximate();
@@ -246,7 +252,7 @@ impl Mul for Fraction {
                 return Fraction::new(new_numerator.unwrap(), new_denominator.unwrap());
             }
 
-            if s.accuracy() > other.accuracy() {
+            if s.sensitivity() > other.sensitivity() {
                 s = s.approximate();
             } else {
                 other = other.approximate();
@@ -288,7 +294,6 @@ fn print(amatrix: &Matrix) {
 }
 /// Add to one row a scalar multiple of another.
 fn add(amatrix: &mut Matrix, to: usize, sto: Fraction, from: usize, sfrom: Fraction) {
-    println!("adding {from} scaled by {sfrom} to {to} scaled by {sto}");
     for i in 0..amatrix.len() + 1 {
         let a = amatrix[to][i] * sto;
         let b = sfrom * amatrix[from][i];
@@ -297,7 +302,6 @@ fn add(amatrix: &mut Matrix, to: usize, sto: Fraction, from: usize, sfrom: Fract
 }
 /// Multiply a row by a non-zero scalar.
 fn scale(amatrix: &mut Matrix, row: usize, s: Fraction) {
-    println!("Scaling {row} by {s}");
     amatrix[row].iter_mut().for_each(|i| *i *= s);
 }
 /// Swap the positions of two rows.
@@ -305,7 +309,6 @@ fn swap(amatrix: &mut Matrix, a: usize, b: usize) {
     if a == b {
         return;
     }
-    println!("Swapping {a} {b}");
     amatrix.swap(a, b);
 }
 /// Gaussian Elimination on an augmented matrix to solve Ax=b returns x
@@ -313,11 +316,8 @@ fn gaussian_elimination(mut amatrix: Matrix) -> Option<Vec<Fraction>> {
     let n = amatrix.len();
     // n x n + 1
     assert!(n + 1 == amatrix[0].len(), "augmented matrix is not n x n+1");
-    print(&amatrix);
 
     for col in 0..n {
-        println!();
-        print(&amatrix);
         // use the smallest row as pivot
         let r = (col..n).filter(|r| amatrix[*r][col] != 0).min_by(|a, b| {
             match (amatrix[*a][col].abs() - amatrix[*b][col].abs()).round() {
@@ -354,7 +354,6 @@ fn gaussian_elimination(mut amatrix: Matrix) -> Option<Vec<Fraction>> {
             }
         }
     }
-    print(&amatrix);
 
     // return last row
     Some(amatrix.into_iter().map(|r| r[n]).collect())
@@ -391,19 +390,15 @@ fn build_constraints<'a>(hailstones: &'a Vec<[(i128, i128, i128); 2]>) -> Matrix
         .collect();
 }
 
-///
+/// I got down to around ~100 in error. I tried implementing my own more accurate number but could
+/// not get it to be approximate enough. Another way to maybe deal with this is by using
+/// QR-decomposition for calculating 6x6 matrix otherwise one of the following solutions:
 /// - Could be solved using cross products (https://github.com/electronsandstuff/AdventofCode2023/blob/162cb0fca7d73ca0ba4377e012d074149351bc06/src/day24.jl)
 /// - Or by calculating x,y,vx,vy first (https://github.com/ash42/adventofcode/blob/main/adventofcode2023/src/nl/michielgraat/adventofcode2023/day24/Day24.java)
 /// solving 2 2x2 matrices
+///
+/// Average Duration: 16.276796ms
 fn part2(input: String) -> i128 {
-    assert_eq!(
-        gaussian_elimination(vec![
-            vec![2.into(), 4.into(), 4.into()],
-            vec![3.into(), 5.into(), 5.into()]
-        ])
-        .unwrap(),
-        vec![Fraction::from(0), Fraction::from(1)]
-    );
     let hailstones: Vec<[(i128, i128, i128); 2]> = input
         .lines()
         .map(|l| {
@@ -420,7 +415,6 @@ fn part2(input: String) -> i128 {
 
     let a = build_constraints(&hailstones);
     let x = gaussian_elimination(a).expect("non singular");
-    print(&vec![x.clone()]);
     return (x[0] + x[1] + x[2]).round();
 }
 
