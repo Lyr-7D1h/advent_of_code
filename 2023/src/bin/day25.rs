@@ -38,6 +38,7 @@ fn part1(input: String) -> usize {
         }
     }
 
+    // Karger's Algorithm for finding minum cut: https://en.wikipedia.org/wiki/Karger%27s_algorithm#The_global_minimum_cut_problem
     loop {
         // add entry for contrating nodes to
         let mut cmap: HashMap<&str, (Vec<&str>, Vec<&str>)> = map
