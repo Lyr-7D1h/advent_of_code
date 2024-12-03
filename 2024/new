@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Create all necessary new files
+# ./new {day} 
+# eg. ./new day20
+#
+
+set -eEuo pipefail
+DAY=$1
+
+touch example/$DAY.txt input/$DAY.txt 
+cp src/bin/template.rs src/bin/$DAY.rs

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+#
+# ./run {day} {part} {data folder} [other arguments]
+# eg. ./run day1 one input
+#
+
+set -eEuo pipefail
+
+DAY=$1
+PART=$2
+INPUT=$3
+
+if [ ! -f $INPUT ]; then
+    INPUT=$3/$1.txt
+fi
+
+cargo build --bin="$DAY" --release
+./target/release/"$DAY" $PART $INPUT -p ${@:4}
