@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# ./run {day} {part} {data folder} [other arguments]
-# eg. ./run day1 one input
+# ./perf {day} {part} {data folder} [other arguments]
+# eg. ./perf day1 one input
 #
 
 set -eEuo pipefail
