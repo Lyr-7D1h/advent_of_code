@@ -11,6 +11,13 @@ All solutions are seperate binaries in `src/bin` which use `src/lib.rs` to parse
 cargo run --bin=day{n} -- {part} {input}
 ```
 
+or 
+
+```bash
+./run day{n} {part} {input}
+./run day01 one example
+```
+
 Example
 
 ```bash
